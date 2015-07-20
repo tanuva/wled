@@ -78,10 +78,10 @@ void storeColor()
 void readColor()
 {
 	std::ifstream file(_colorFile);
-	std::string _enabledStr;
+	std::string enabledStr;
 	std::string colStr;
-	file >> _enabledStr;
-	_enabled = (bool)atoi(_enabledStr.c_str());
+	file >> enabledStr;
+	_enabled = (bool)atoi(enabledStr.c_str());
 	file >> colStr;
 	_color = hexToVec(colStr);
 }
