@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <vector>
 
-const std::string _colorFile = "last_color";
+const std::string _colorFile = "/etc/wled.conf";
 bool _enabled = true; // Light switch
 std::vector<uint> _color;
 
