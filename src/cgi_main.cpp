@@ -140,14 +140,6 @@ void printInterface()
 	ss << std::endl;
 
 	std::string enableText = _enabled ? "Off" : "On";
-	// TODO Don't hardcode that path. Cmake should copy that to the build dir.
-	// Does anyone except me even care?
-	// Yes, I do even care a lot. This should ideally be delivered by the httpd.
-	std::ifstream mainJsStream("../src/main.js");
-	if (!mainJsStream.is_open()) {
-		printResult("Couldn't open ../src/main.js\n");
-		return;
-	}
 
 	ss << "<!doctype html><html><head>"
 	   << "<title>WLED</title>"
@@ -158,7 +150,7 @@ void printInterface()
 	   << "R<nbsp;><input id=\"r\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[0] << "\" /><br />"
 	   << "G<nbsp;><input id=\"g\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[1] << "\" /><br />"
 	   << "B<nbsp;><input id=\"b\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[2] << "\" /><br />"
-	   << "<script src=\"wled.js\"></script>"
+	   << "<script src=\"../wled.js\"></script>"
 	   << "</body></html>";
 
 	// Fire!
