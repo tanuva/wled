@@ -55,11 +55,13 @@ std::vector<uint8_t> hexToVec(std::string &hexStr)
 
 std::string vecToHex(std::vector<uint8_t> color)
 {
+	int hexInt = 0;
+	hexInt += _color[0] << 16;
+	hexInt += _color[1] <<  8;
+	hexInt += _color[2];
 	std::stringstream ss;
 	ss << std::hex;
-	ss << std::setw(2) << color[0];
-	ss << std::setw(2) << color[1];
-	ss << std::setw(2) << color[2];
+	ss << std::setw(6) << hexInt;
 	return ss.str();
 }
 
