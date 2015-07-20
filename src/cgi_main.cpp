@@ -5,11 +5,15 @@
 #include <sstream>
 #include <streambuf>
 #include <stdint.h>
+#include <signal.h>
+#include <sys/types.h>
 #include <vector>
 
 const std::string _colorFile = "/etc/wled.conf";
+const std::string _pidFile = "/tmp/wledd.pid";
 bool _enabled = true; // Light switch
 std::vector<uint8_t> _color;
+pid_t _wleddPid = 0;
 
 // TODO Stick with global state. This is so simple, we don't care about OOP.
 
@@ -86,30 +90,16 @@ void readColor()
 	_color = hexToVec(colStr);
 }
 
-int echo(const std::string target, const int value)
+void readWleddPid()
 {
-	std::ofstream file(target.c_str());
-	if(!file) {
-		std::cerr << "Could not open " << target << std::endl;
-		return -1;
+	std::ifstream file(_pidFile);
+	std::string pidStr;
+	file >> pidStr;
+	if (pidStr.length() == 0) {
+		printResult("couldn't read wledd pid");
+		return;
 	}
-
-	file << value;
-	file.close();
-	return 0;
-}
-
-int echo(const std::string target, const char *value)
-{
-	std::ofstream file(target.c_str());
-	if(!file) {
-		std::cerr << "Could not open " << target << std::endl;
-		return -1;
-	}
-
-	file << value;
-	file.close();
-	return 0;
+	_wleddPid = atoi(pidStr.c_str());
 }
 
 /**
@@ -117,18 +107,9 @@ int echo(const std::string target, const char *value)
  */
 void applyColor()
 {
-	/*
-	GPIOS:
-	- 22: green
-	- 20: blue
-	- 19: red
-	echo 23 > /sys/class/gpio/export
-	echo out > /sys/devices/virtual/gpio/gpio23/direction
-	echo 1 > /sys/devices/virtual/gpio/gpio23/value
-	*/
-	echo("/sys/devices/virtual/gpio/gpio19/value", _color[0] > 0);
-	echo("/sys/devices/virtual/gpio/gpio22/value", _color[1] > 0);
-	echo("/sys/devices/virtual/gpio/gpio20/value", _color[2] > 0);
+	if(kill(_wleddPid, SIGUSR1) < 0) {
+		printResult("couldn't send SIGUSR1 to wledd");
+	}
 }
 
 void printInterface()
@@ -173,6 +154,7 @@ void processQuery(std::string &query)
 	}
 
 	storeColor();
+	readWleddPid();
 	applyColor();
 
 	// Answer the caller
