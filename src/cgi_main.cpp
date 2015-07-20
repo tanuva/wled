@@ -9,7 +9,7 @@
 
 const std::string _colorFile = "/etc/wled.conf";
 bool _enabled = true; // Light switch
-std::vector<uint> _color;
+std::vector<uint8_t> _color;
 
 // TODO Stick with global state. This is so simple, we don't care about OOP.
 
@@ -22,12 +22,12 @@ void printResult(const char *result)
 	std::cout << ss.str();
 }
 
-// Parses a hex string of the form "RRGGBB" into an std::vector<uint>
-std::vector<uint> hexToVec(std::string &hexStr)
+// Parses a hex string of the form "RRGGBB" into an std::vector<uint8_t>
+std::vector<uint8_t> hexToVec(std::string &hexStr)
 {
 	if (hexStr.length() == 0) {
 		// No previous saved color found
-		std::vector<uint> color;
+		std::vector<uint8_t> color;
 		color.push_back(255);
 		color.push_back(255);
 		color.push_back(255);
@@ -41,19 +41,19 @@ std::vector<uint> hexToVec(std::string &hexStr)
 	if (hexInt > 0xFFFFFF || hexInt < 0) {
 		std::cerr << "Invalid hexStr: " << hexStr << std::endl;
 		printResult("Invalid hexStr");
-		return std::vector<uint>();
+		return std::vector<uint8_t>();
 	}
 
 	// Split into color channels
 	// Source: Bill James, http://stackoverflow.com/a/214367/405507
-	std::vector<uint> color;
+	std::vector<uint8_t> color;
 	color.push_back((hexInt >> 16) & 0xFF);
 	color.push_back((hexInt >> 8) & 0xFF);
 	color.push_back(hexInt & 0xFF);
 	return color;
 }
 
-std::string vecToHex(std::vector<uint> color)
+std::string vecToHex(std::vector<uint8_t> color)
 {
 	std::stringstream ss;
 	ss << std::hex;
