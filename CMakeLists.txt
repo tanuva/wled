@@ -28,6 +28,7 @@ add_custom_command(
 
 set(DAEMON_SRC
 	src/daemon_main.cpp
+	src/gpio.cpp
 )
 
 add_executable(wledd ${DAEMON_SRC})
