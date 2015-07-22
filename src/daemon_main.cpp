@@ -127,8 +127,7 @@ void pwmLoop(timespec interval, const long int pwmPeriod)
 		currentNanos += interval.tv_nsec;
 		for (size_t i = 0; i < _scaledColor.size(); i++) {
 			// Only go through the trouble of writing to sysfs if the value actually changed
-			// TODO Does this really save anything with the new GPIO classes?
-			currentState[i] = getLedState(currentNanos, i);
+			currentState[i] = _settings.enabled ? getLedState(currentNanos, i) : 0;
 			if (currentState[i] != lastState[i]) {
 				_gpio[i]->set(currentState[i]);
 				lastState[i] = currentState[i];

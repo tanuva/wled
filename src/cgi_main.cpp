@@ -56,7 +56,7 @@ void printInterface()
 	   << "<meta charset=\"UTF-8\" />"
 	   << "</head>\n<body>"
 	   << "<h1>WLED</h1>"
-	   << "<input name=\"enable\" type=\"button\" value=\"On/Off\" /><br /><br />"
+	   << "<input id=\"enabled\" type=\"button\" value=\"On/Off\" /><br /><br />"
 	   << "R<nbsp;><input id=\"r\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_settings.color[0] << "\" /><br />"
 	   << "G<nbsp;><input id=\"g\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_settings.color[1] << "\" /><br />"
 	   << "B<nbsp;><input id=\"b\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_settings.color[2] << "\" /><br />"
@@ -70,21 +70,25 @@ void printInterface()
 void processQuery(std::string &query)
 {
 	// Parse query
-	// Example: set=FF00FF
-	if (query.length() != 10 || query.find("set=") != 0) {
+	// TODO Write a proper query string parser (overkill...)
+	if (query.find("color=") == 0) {
+		// Example: color=FF00FF
+		std::string colStr = query.substr(query.find("=") + 1);
+		_settings.color = hexToVec(colStr);
+		if (_settings.color.size() == 0) {
+			std::cerr << "invalid color format: " << query << std::endl;
+			return;
+		}
+	} else if (query.find("enabled=") == 0) {
+		// Actually, this is a toggle. We don't care about the value.
+		// Example: enabled=1
+		_settings.enabled = !_settings.enabled;
+	} else {
 		std::cerr << "invalid query string: " << query << std::endl;
 		return;
 	}
 
-	std::string colStr = query.substr(query.find("=") + 1);
-	_settings.color = hexToVec(colStr);
-	if (_settings.color.size() == 0) {
-		std::cerr << "invalid color format: " << query << std::endl;
-		return;
-	}
-
 	writeSettings();
-	readWleddPid();
 	applyColor();
 
 	// Answer the caller
@@ -103,9 +107,11 @@ int main(int argc, char **argv)
 		query = std::string(std::getenv("QUERY_STRING"));
 	}
 
+	readWleddPid();
+	readSettings();
+
 	if (method == "GET") {
 		if (query.length() == 0) {
-			readSettings();
 			printInterface();
 		} else {
 			processQuery(query);

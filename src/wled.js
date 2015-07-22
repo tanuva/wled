@@ -1,20 +1,24 @@
 var r = document.getElementById('r');
 var g = document.getElementById('g');
 var b = document.getElementById('b');
+var enabled = document.getElementById('enabled');
 
-function composeQuery() {
+function composeColorQuery() {
 	var convert = function(val) {
 		var result = val.toString(16);
 		console.debug(result);
 		return result.length == 1 ? "0" + result : result;
 	}
-	return "set=" + convert(parseInt(r.value))
+	return "color=" + convert(parseInt(r.value))
 					+ convert(parseInt(g.value))
 					+ convert(parseInt(b.value));
 }
 
-function setValues() {
-	var postData = composeQuery();
+function composeEnabledQuery() {
+	return "enabled=1"; // The value actually doesn't matter at all.
+}
+
+function post(postData) {
 	var async = true;
 	var request = new XMLHttpRequest();
 
@@ -32,6 +36,7 @@ function setValues() {
 	request.send(postData);
 }
 
-r.onchange = setValues;
-g.onchange = setValues;
-b.onchange = setValues;
+r.onchange = function() { post(composeColorQuery()) };
+g.onchange = function() { post(composeColorQuery()) };
+b.onchange = function() { post(composeColorQuery()) };
+enabled.onclick = function() { post(composeEnabledQuery()) };
