@@ -7,4 +7,5 @@ I've got this set of Revoltec LED backlight bars. They're meant as a form of sta
 To put the C2 in control, the ATMega8 was removed from the original PCB and I soldered the C2's GPIOs to the corresponding lanes where that ATMega used to give the orders. As they're both working with 3.3V levels, everything is fine and I can even power the C2 through the original 12V power supply (and a voltage converter).
 
 For some reason, GitHub doesn't like me to put inline images here, you'll have to click yourself: 
-![Flicker-free!](https://nightsoul.org/files/2015-07-22 flicker-free.jpg)
+
+![Flicker-free!](img/2015-07-22 flicker-free.jpg)
