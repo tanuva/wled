@@ -15,13 +15,13 @@
 #include <sstream>
 #include <vector>
 
-std::vector<uint8_t> _color;
-std::vector<std::unique_ptr<Output> > _gpioValue; // Ofstreams to open "value" files. We don't want to open the files on every pwm cycle.
-
+std::vector<long int> _scaledColor;
+std::vector<std::unique_ptr<Output> > _gpio;
 bool _enabled = true;
 bool _fork = true;
-const std::string _colorFile = "/etc/wled.conf";
+const std::string _scaledColorFile = "/etc/wled.conf";
 const std::string _pidFile = "/tmp/wledd.pid";
+const long int _pwmPeriod = 100000 /*ns = 10 ms*/;
 
 // Writes value into target OVERWRITING previous content.
 int echo(const std::string target, const int value)
@@ -63,21 +63,13 @@ void configureGPIOs()
 	echo 1 > /sys/devices/virtual/gpio/gpio23/value
 	*/
 
-/*
-	echo("/sys/class/gpio/export", 19);
-	echo("/sys/devices/virtual/gpio/gpio19/direction", "out");
-	echo("/sys/class/gpio/export", 20);
-	echo("/sys/devices/virtual/gpio/gpio20/direction", "out");
-	echo("/sys/class/gpio/export", 22);
-	echo("/sys/devices/virtual/gpio/gpio22/direction", "out");
-*/
-	// This order is important.
+	// This order is important to preserve RGB channel matching.
 	std::unique_ptr<Output> p19(new Output(Pin::P19));
-	_gpioValue.push_back(std::move(p19));
+	_gpio.push_back(std::move(p19));
 	std::unique_ptr<Output> p22(new Output(Pin::P22));
-	_gpioValue.push_back(std::move(p22));
+	_gpio.push_back(std::move(p22));
 	std::unique_ptr<Output> p20(new Output(Pin::P20));
-	_gpioValue.push_back(std::move(p20));
+	_gpio.push_back(std::move(p20));
 }
 
 // Parses a hex string of the form "RRGGBB" into an std::vector<uint8_t>
@@ -112,13 +104,21 @@ std::vector<uint8_t> hexToVec(std::string &hexStr)
 // Reads the color from disk that was configured through the CGI program.
 void readColor()
 {
-	std::ifstream file(_colorFile);
+	std::ifstream file(_scaledColorFile);
 	std::string enabledStr;
 	std::string colStr;
 	file >> enabledStr;
 	_enabled = (bool)atoi(enabledStr.c_str());
 	file >> colStr;
-	_color = hexToVec(colStr);
+	std::vector<uint8_t> color = hexToVec(colStr);
+
+	// Scale colors with PWM period to avoid float divisions in the PWM loop.
+	// The Carambola 2 doesn't have an FPU, so doing floating point computations (divisions even!) is slooow.
+	_scaledColor.clear();
+	for (size_t i = 0; i < color.size(); i++) {
+		const float ledPerc = color[i] / 255.0f;
+		_scaledColor.push_back((long int)(ledPerc * (float)_pwmPeriod));
+	}
 }
 
 // Handles unix signals
@@ -144,13 +144,9 @@ inline void sleep(timespec interval)
 }
 
 // Determines if a led needs to be on or off at currentNanos within pwmPeriod.
-inline bool getLedState(const long int pwmPeriod, const long int currentNanos, const size_t ledIndex)
+inline bool getLedState(const long int currentNanos, const size_t ledIndex)
 {
-	// The Carambola 2 doesn't have an FPU, so doing floating point computations (divisions even!) is very slow.
-	// Lets see how this performs.
-	const float periodPerc = currentNanos / (float)pwmPeriod;
-	const float ledPerc = _color[ledIndex] / 255.0f;
-	return ledPerc > periodPerc;
+	return currentNanos < _scaledColor[ledIndex];
 }
 
 // Performs actual PWM for each color channel.
@@ -158,21 +154,21 @@ void pwmLoop(timespec interval, const long int pwmPeriod)
 {
 	long int currentNanos = 0;
 
-	bool currentState[_color.size()];
-	bool lastState[_color.size()];
-	for (int i = 0; i < _color.size(); i++) {
+	bool currentState[_scaledColor.size()];
+	bool lastState[_scaledColor.size()];
+	for (size_t i = 0; i < _scaledColor.size(); i++) {
 		currentState[i] = false;
 		lastState[i] = false;
 	}
 
 	while(true) {
 		currentNanos += interval.tv_nsec;
-		for (int i = 0; i < _color.size(); i++) {
+		for (size_t i = 0; i < _scaledColor.size(); i++) {
 			// Only go through the trouble of writing to sysfs if the value actually changed
-			currentState[i] = getLedState(pwmPeriod, currentNanos, i);
+			// TODO Does this really save anything with the new GPIO classes?
+			currentState[i] = getLedState(currentNanos, i);
 			if (currentState[i] != lastState[i]) {
-				//echo(_gpioPath[i], currentState[i]);
-				_gpioValue[i]->set(currentState[i]);
+				_gpio[i]->set(currentState[i]);
 				lastState[i] = currentState[i];
 			}
 		}
@@ -227,7 +223,7 @@ int main(int argc, char **argv)
 	interval.tv_sec = 0;
 	// Frequency: ~100 Hz -> Period: 10 ms
 	// 255 steps resolution -> 10 ms / 255 = 39100 ns
-	interval.tv_nsec = 39100;
-	pwmLoop(interval, 10000000 /*ns = 10 ms*/);
+	interval.tv_nsec = (long int)(_pwmPeriod / 255.0f);
+	pwmLoop(interval, _pwmPeriod);
 }
 
