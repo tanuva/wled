@@ -114,8 +114,6 @@ void applyColor()
 
 void printInterface()
 {
-	readColor();
-
 	std::stringstream ss;
 	ss << "Content-Type: text/html" << std::endl;
 	ss << std::endl;
@@ -125,7 +123,7 @@ void printInterface()
 	ss << "<!doctype html><html><head>"
 	   << "<title>WLED</title>"
 	   << "<meta charset=\"UTF-8\" />"
-	   << "</head><body>"
+	   << "</head>\n<body>"
 	   << "<h1>WLED</h1>"
 	   << "<input name=\"enable\" type=\"button\" value=\"" << enableText << "\" /><br /><br />"
 	   << "R<nbsp;><input id=\"r\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[0] << "\" /><br />"
@@ -175,6 +173,7 @@ int main(int argc, char **argv)
 
 	if (method == "GET") {
 		if (query.length() == 0) {
+			readColor();
 			printInterface();
 		} else {
 			processQuery(query);
