@@ -1,4 +1,5 @@
 #include "gpio.hpp"
+#include "common.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,11 +18,8 @@
 
 std::vector<long int> _scaledColor;
 std::vector<std::unique_ptr<Output> > _gpio;
-bool _enabled = true;
 bool _fork = true;
-const std::string _scaledColorFile = "/etc/wled.conf";
-const std::string _pidFile = "/tmp/wledd.pid";
-const long int _pwmPeriod = 100000 /*ns = 10 ms*/;
+const long int _pwmPeriod = 100000 /*ns = 0.1 ms*/;
 
 // Writes value into target OVERWRITING previous content.
 int echo(const std::string target, const int value)
@@ -72,51 +70,15 @@ void configureGPIOs()
 	_gpio.push_back(std::move(p20));
 }
 
-// Parses a hex string of the form "RRGGBB" into an std::vector<uint8_t>
-std::vector<uint8_t> hexToVec(std::string &hexStr)
-{
-	if (hexStr.length() == 0) {
-		// No previous saved color found
-		std::vector<uint8_t> color;
-		color.push_back(255);
-		color.push_back(255);
-		color.push_back(255);
-		return color;
-	}
-	// Decode hex -> int
-	int hexInt = -1;
-	std::stringstream ss;
-	ss.str(hexStr);
-	ss >> std::hex >> hexInt;
-	if (hexInt > 0xFFFFFF || hexInt < 0) {
-		return std::vector<uint8_t>();
-	}
-
-	// Split into color channels
-	// Source: Bill James, http://stackoverflow.com/a/214367/405507
-	std::vector<uint8_t> color;
-	color.push_back((hexInt >> 16) & 0xFF);
-	color.push_back((hexInt >> 8) & 0xFF);
-	color.push_back(hexInt & 0xFF);
-	return color;
-}
-
 // Reads the color from disk that was configured through the CGI program.
-void readColor()
+void readAndScaleColor()
 {
-	std::ifstream file(_scaledColorFile);
-	std::string enabledStr;
-	std::string colStr;
-	file >> enabledStr;
-	_enabled = (bool)atoi(enabledStr.c_str());
-	file >> colStr;
-	std::vector<uint8_t> color = hexToVec(colStr);
-
+	readSettings();
 	// Scale colors with PWM period to avoid float divisions in the PWM loop.
 	// The Carambola 2 doesn't have an FPU, so doing floating point computations (divisions even!) is slooow.
 	_scaledColor.clear();
-	for (size_t i = 0; i < color.size(); i++) {
-		const float ledPerc = color[i] / 255.0f;
+	for (size_t i = 0; i < _settings.color.size(); i++) {
+		const float ledPerc = _settings.color[i] / 255.0f;
 		_scaledColor.push_back((long int)(ledPerc * (float)_pwmPeriod));
 	}
 }
@@ -126,7 +88,7 @@ void handleSignal(const int signal)
 {
 	switch (signal) {
 	case SIGUSR1:
-		readColor();
+		readAndScaleColor();
 		break;
 	default:
 		break;
@@ -192,7 +154,7 @@ int main(int argc, char **argv)
 			exit(EXIT_FAILURE);
 		}
 		if (pid > 0) {
-			echo(_pidFile, pid);
+			echo(_pidFilePath, pid);
 			exit(EXIT_SUCCESS);
 		}
 
@@ -217,7 +179,7 @@ int main(int argc, char **argv)
 	// Register a handler for SIGUSR1. We'll use this to trigger readColor.
 	signal(SIGUSR1, handleSignal);
 	configureGPIOs();
-	readColor();
+	readAndScaleColor();
 
 	timespec interval;
 	interval.tv_sec = 0;
