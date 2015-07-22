@@ -89,6 +89,8 @@ Input::Input(Pin::List pin) : _pin(pin)
 	_fd = open(pin, Direction::IN);
 }
 
+Input::Input(const Input &) {}
+
 Input::~Input()
 {
 	close(_fd);
@@ -112,6 +114,8 @@ Output::Output(Pin::List pin) : _pin(pin)
 	setDirection(pin, Direction::OUT);
 	_fd = open(pin, Direction::OUT);
 }
+
+Output::Output(const Output &) {}
 
 Output::~Output()
 {

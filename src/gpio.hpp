@@ -57,6 +57,7 @@ public:
 
 	bool get();
 private:
+	Input(const Input &);
 	Pin::List _pin;
 	int _fd;
 };
@@ -68,6 +69,7 @@ public:
 
 	void set(bool value);
 private:
+	Output(const Output &);
 	Pin::List _pin;
 	int _fd;
 };

@@ -11,11 +11,12 @@
 #include <string.h>
 #include <time.h>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <vector>
 
 std::vector<uint8_t> _color;
-std::vector<Output> _gpioValue; // Ofstreams to open "value" files. We don't want to open the files on every pwm cycle.
+std::vector<std::unique_ptr<Output> > _gpioValue; // Ofstreams to open "value" files. We don't want to open the files on every pwm cycle.
 
 bool _enabled = true;
 bool _fork = true;
@@ -70,9 +71,13 @@ void configureGPIOs()
 	echo("/sys/class/gpio/export", 22);
 	echo("/sys/devices/virtual/gpio/gpio22/direction", "out");
 */
-	_gpioValue.push_back(Output(Pin::P19));
-	_gpioValue.push_back(Output(Pin::P20));
-	_gpioValue.push_back(Output(Pin::P22));
+	// This order is important.
+	std::unique_ptr<Output> p19(new Output(Pin::P19));
+	_gpioValue.push_back(std::move(p19));
+	std::unique_ptr<Output> p22(new Output(Pin::P22));
+	_gpioValue.push_back(std::move(p22));
+	std::unique_ptr<Output> p20(new Output(Pin::P20));
+	_gpioValue.push_back(std::move(p20));
 }
 
 // Parses a hex string of the form "RRGGBB" into an std::vector<uint8_t>
@@ -167,7 +172,7 @@ void pwmLoop(timespec interval, const long int pwmPeriod)
 			currentState[i] = getLedState(pwmPeriod, currentNanos, i);
 			if (currentState[i] != lastState[i]) {
 				//echo(_gpioPath[i], currentState[i]);
-				_gpioValue[i].set(currentState[i]);
+				_gpioValue[i]->set(currentState[i]);
 				lastState[i] = currentState[i];
 			}
 		}
