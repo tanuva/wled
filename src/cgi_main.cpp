@@ -126,9 +126,9 @@ void printInterface()
 	   << "</head>\n<body>"
 	   << "<h1>WLED</h1>"
 	   << "<input name=\"enable\" type=\"button\" value=\"" << enableText << "\" /><br /><br />"
-	   << "R<nbsp;><input id=\"r\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[0] << "\" /><br />"
-	   << "G<nbsp;><input id=\"g\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[1] << "\" /><br />"
-	   << "B<nbsp;><input id=\"b\" type=\"range\" min=\"0\" max=\"255\" value=\"" << _color[2] << "\" /><br />"
+	   << "R<nbsp;><input id=\"r\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_color[0] << "\" /><br />"
+	   << "G<nbsp;><input id=\"g\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_color[1] << "\" /><br />"
+	   << "B<nbsp;><input id=\"b\" type=\"range\" min=\"0\" max=\"255\" value=\"" << (int)_color[2] << "\" /><br />"
 	   << "<script src=\"../wled.js\"></script>"
 	   << "</body></html>";
 
