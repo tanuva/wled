@@ -107,7 +107,7 @@ void readWleddPid()
  */
 void applyColor()
 {
-	if(kill(_wleddPid, SIGUSR1) < 0) {
+	if(_wleddPid != 0 && kill(_wleddPid, SIGUSR1) < 0) {
 		printResult("couldn't send SIGUSR1 to wledd");
 	}
 }
