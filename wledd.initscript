@@ -19,7 +19,7 @@ start() {
 stop() {
 	if [ -e /tmp/wledd.pid ]
 	then
-		kill $(cat /tmp/wledd.pid)
+		kill -s HUP $(cat /tmp/wledd.pid)
 		rm /tmp/wledd.pid
 	fi
 }

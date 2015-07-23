@@ -70,6 +70,15 @@ void configureGPIOs()
 	_gpio.push_back(std::move(p20));
 }
 
+void cleanup()
+{
+	for (size_t i = 0; i < _gpio.size(); i++) {
+		_gpio[i]->set(false);
+	}
+	_gpio.clear();
+	// TODO delete _wleddPidFile
+}
+
 // Reads the color from disk that was configured through the CGI program.
 void readAndScaleColor()
 {
@@ -90,6 +99,9 @@ void handleSignal(const int signal)
 	case SIGUSR1:
 		readAndScaleColor();
 		break;
+	case SIGHUP:
+		cleanup();
+		exit(0);
 	default:
 		break;
 	}
@@ -177,6 +189,7 @@ int main(int argc, char **argv)
 
 	// Register a handler for SIGUSR1. We'll use this to trigger readColor.
 	signal(SIGUSR1, handleSignal);
+	signal(SIGHUP, handleSignal);
 	configureGPIOs();
 	readAndScaleColor();
 
@@ -186,5 +199,6 @@ int main(int argc, char **argv)
 	// 255 steps resolution -> 10 ms / 255 = 39100 ns
 	interval.tv_nsec = (long int)(_pwmPeriod / 255.0f);
 	pwmLoop(interval, _pwmPeriod);
+	return 0;
 }
 
