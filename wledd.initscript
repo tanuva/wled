@@ -1,0 +1,25 @@
+#!/bin/sh /etc/rc.common
+# WLED init script
+# Copyright (C) 2015 Marcel Brueggebors
+# Copyright (C) 2007 OpenWrt.org
+
+# Start last, stop first
+START=99
+STOP=0
+
+start() {
+	if [ -e /tmp/wledd.pid ]
+	then
+		echo "wledd is already running, exiting."
+		return -1
+	fi
+	nice -n +20 /root/wledd
+}
+
+stop() {
+	if [ -e /tmp/wledd.pid ]
+	then
+		kill $(cat /tmp/wledd.pid)
+		rm /tmp/wledd.pid
+	fi
+}

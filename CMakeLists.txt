@@ -39,3 +39,8 @@ add_custom_command(
 	ARGS ${CMAKE_CURRENT_BINARY_DIR}/wledd ${TARGET_HOST}: # TODO Find a better location
 )
 
+add_custom_command(
+	TARGET wledd POST_BUILD
+	COMMAND "scp"
+	ARGS ${CMAKE_CURRENT_BINARY_DIR}/../wledd.initscript ${TARGET_HOST}:/etc/init.d/wledd
+)
