@@ -14,13 +14,23 @@
 
 pid_t _wleddPid = 0;
 
-void printResult(const char *result)
+// Set resultIsObject to true if the string is a valid JSON object.
+void printResult(std::string result, bool resultIsObject = false)
 {
 	std::stringstream ss;
 	ss << "Content-Type: application/json;charset=UTF-8" << std::endl;
 	ss << std::endl;
-	ss << "{ result: \"" << result << "\" }" << std::endl;
+	if (resultIsObject) {
+		ss << "{ result: \n" << result << "\n}" << std::endl;
+	} else  {
+		ss << "{ result: \"" << result << "\" }" << std::endl;
+	}
 	std::cout << ss.str();
+}
+
+void printResult(const char *result, bool resultIsObject = false)
+{
+	printResult(std::string(result), resultIsObject);
 }
 
 bool readWleddPid()
@@ -96,6 +106,16 @@ void processQuery(std::string &query)
 	printResult("ok");
 }
 
+// Handles typical GET requests. With a request like http://host/wled.cgi/color, pathInfo contains "/color". Possible query strings will not appear here.
+void processPathInfo(std::string &pathInfo)
+{
+	if (pathInfo.find("/color", 0) == 0) {
+		std::stringstream ss;
+		ss << "[ color: " << vecToHex(_settings.color) << " ]";
+		printResult(ss.str(), true);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	// Collect some information about the environment
@@ -107,6 +127,10 @@ int main(int argc, char **argv)
 	if (std::getenv("QUERY_STRING")) {
 		query = std::string(std::getenv("QUERY_STRING"));
 	}
+	std::string pathInfo;
+	if (std::getenv("PATH_INFO")) {
+		pathInfo = std::string(std::getenv("PATH_INFO"));
+	}
 
 	if (!readWleddPid()) {
 		return -1;
@@ -114,10 +138,12 @@ int main(int argc, char **argv)
 	readSettings();
 
 	if (method == "GET") {
-		if (query.length() == 0) {
-			printInterface();
-		} else {
+		if (pathInfo.length() > 0) {
+			processPathInfo(pathInfo);
+		} else if (query.length() > 0) {
 			processQuery(query);
+		} else {
+			printInterface();
 		}
 	} else {
 		// Assuming POST
