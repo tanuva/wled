@@ -23,16 +23,17 @@ void printResult(const char *result)
 	std::cout << ss.str();
 }
 
-void readWleddPid()
+bool readWleddPid()
 {
 	std::ifstream file(_pidFilePath);
 	std::string pidStr;
 	file >> pidStr;
 	if (pidStr.length() == 0) {
 		printResult("couldn't read wledd pid");
-		return;
+		return false;
 	}
 	_wleddPid = atoi(pidStr.c_str());
+	return true;
 }
 
 /**
@@ -107,7 +108,9 @@ int main(int argc, char **argv)
 		query = std::string(std::getenv("QUERY_STRING"));
 	}
 
-	readWleddPid();
+	if (!readWleddPid()) {
+		return -1;
+	}
 	readSettings();
 
 	if (method == "GET") {
