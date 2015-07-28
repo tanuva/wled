@@ -20,10 +20,11 @@ void printResult(std::string result, bool resultIsObject = false)
 	std::stringstream ss;
 	ss << "Content-Type: application/json;charset=UTF-8" << std::endl;
 	ss << std::endl;
+	// Is this JSON structure overly ugly?
 	if (resultIsObject) {
-		ss << "{ result: \n" << result << "\n}" << std::endl;
-	} else  {
-		ss << "{ result: \"" << result << "\" }" << std::endl;
+		ss << result << std::endl;
+	} else {
+		ss << "{ \"result\": \"" << result << "\" }" << std::endl;
 	}
 	std::cout << ss.str();
 }
@@ -111,7 +112,7 @@ void processPathInfo(std::string &pathInfo)
 {
 	if (pathInfo.find("/color", 0) == 0) {
 		std::stringstream ss;
-		ss << "[ color: " << vecToHex(_settings.color) << " ]";
+		ss << "{ \"color\": \"" << vecToHex(_settings.color) << "\" }";
 		printResult(ss.str(), true);
 	}
 }
