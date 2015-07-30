@@ -59,6 +59,7 @@ void applyColor()
 
 void printInterface()
 {
+	// TODO Make the web server serve this, fetch current color via js
 	std::stringstream ss;
 	ss << "Content-Type: text/html" << std::endl;
 	ss << std::endl;

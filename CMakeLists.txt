@@ -23,7 +23,7 @@ add_custom_command(
 add_custom_command(
 	TARGET wled.cgi POST_BUILD
 	COMMAND "scp"
-	ARGS ${CMAKE_CURRENT_BINARY_DIR}/../src/wled.js ${TARGET_HOST}:/www
+	ARGS ${CMAKE_CURRENT_BINARY_DIR}/../src/wled.js ${CMAKE_CURRENT_BINARY_DIR}/../src/wled.html ${TARGET_HOST}:/www
 )
 
 set(DAEMON_SRC
