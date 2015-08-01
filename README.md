@@ -9,3 +9,11 @@ To put the C2 in control, the ATMega8 was removed from the original PCB and I so
 Thanks to [Mathias Gottschlag](https://github.com/mgottschlag) for providing me with his C2 and lots of hardware knowledge. (I'm really more of a software guy...)
 
 ![Flicker-free!](img/2015-07-22 flicker-free.jpg)
+
+# Installation
+
+You need to copy `src/web/framework7` to `host:/www/wled` manually once. After that, `make && make web` installs everything else to the right locations. This is done so that subsequent `web` target calls don't take so long. The web interface will then be available at http://host/wled.
+
+For wledd to start automatically, you'll need to `/etc/init.d/wledd enable` to create the necessary symlinks.
+
+*Hint*: Bookmarking the web interface on the iOS home screen makes it behave quite like a native app.

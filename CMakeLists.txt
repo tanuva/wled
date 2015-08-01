@@ -20,12 +20,6 @@ add_custom_command(
 	ARGS ${CMAKE_CURRENT_BINARY_DIR}/wled.cgi ${TARGET_HOST}:/www/cgi-bin
 )
 
-add_custom_command(
-	TARGET wled.cgi POST_BUILD
-	COMMAND "scp"
-	ARGS ${CMAKE_CURRENT_BINARY_DIR}/../src/wled.js ${CMAKE_CURRENT_BINARY_DIR}/../src/wled.html ${TARGET_HOST}:/www
-)
-
 set(DAEMON_SRC
 	src/daemon_main.cpp
 	src/gpio.cpp
@@ -43,4 +37,19 @@ add_custom_command(
 	TARGET wledd POST_BUILD
 	COMMAND "scp"
 	ARGS ${CMAKE_CURRENT_BINARY_DIR}/../wledd.initscript ${TARGET_HOST}:/etc/init.d/wledd
+)
+
+set(COPY_SRC
+	src/web/wled.js
+	src/web/index.html
+)
+
+add_custom_target(web
+	SOURCES ${COPY_SRC}
+)
+
+add_custom_command(
+	TARGET web
+	COMMAND "scp"
+		ARGS ${CMAKE_CURRENT_BINARY_DIR}/../src/web/wled.js ${CMAKE_CURRENT_BINARY_DIR}/../src/web/index.html ${CMAKE_CURRENT_BINARY_DIR}/../src/web/wled.css ${TARGET_HOST}:/www/wled
 )
