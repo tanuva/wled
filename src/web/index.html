@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+	<title>WLED</title>
+	<link rel="stylesheet" href="framework7/css/framework7.ios.min.css">
+	<link rel="stylesheet" href="framework7/css/framework7.ios.colors.min.css">
+	<link rel="stylesheet" href="wled.css">
+</head>
+<body class="layout-dark">
+	<div class="panel-overlay"></div>
+	<!-- Left panel with reveal effect -->
+	<div class="panel panel-left panel-reveal">
+	<div class="content-block">
+		<p>Left panel content goes here</p>
+	</div>
+	</div>
+	<div class="views">
+	<!-- Your main view, should have "view-main" class -->
+	<div class="view view-main">
+		<!-- Top Navbar-->
+		<div class="navbar">
+			<div class="navbar-inner">
+				<!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
+				<div class="center sliding">WLED</div>
+				<div class="right">
+					<!--
+					Right link contains only icon - additional "icon-only" class
+					Additional "open-panel" class tells app to open panel when we click on this link
+					-->
+					<a href="#" class="link icon-only open-panel"><i class="icon icon-bars-blue"></i></a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pages container, because we use fixed-through navbar and toolbar, it has additional appropriate classes-->
+		<div class="pages navbar-through toolbar-through">
+			<!-- Page, "data-page" contains page name -->
+			<div data-page="rgb" class="page">
+				<!-- Scrollable page content TODO NOPE! -->
+				<div class="page-content">
+					<div class="tabs">
+						<!-- First tab is active by default - additional "active" class -->
+						<div class="tab active" id="rgb">
+							<!-- settings category -->
+							<div class="content-block-title">Settings</div>
+								<div class="list-block">
+								<ul>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Power</div>
+										<div class="item-input">
+										<label class="label-switch">
+											<input type="checkbox" id="enabled" checked="1">
+											<div class="checkbox"></div>
+										</label>
+										</div>
+										</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+
+							<!-- RGB category -->
+							<div class="content-block-title">RGB</div>
+								<div class="list-block">
+								<ul>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Red</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="r" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Green</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="g" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Blue</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="b" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="tab" id="hsb">
+							<!-- settings category -->
+							<div class="content-block-title">Settings</div>
+								<div class="list-block">
+								<ul>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Power</div>
+										<div class="item-input">
+										<label class="label-switch">
+											<input type="checkbox" id="enabled" checked="1">
+											<div class="checkbox"></div>
+										</label>
+										</div>
+										</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+
+							<!-- HSV/HSB category -->
+							<div class="content-block-title">HSB</div>
+								<div class="list-block">
+								<ul>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Hue</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="hue" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Saturation</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="saturation" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+										<div class="item-inner">
+										<div class="item-title label">Brightness</div>
+										<div class="item-input">
+										<div class="range-slider">
+											<input type="range" id="brightness" min="0" max="255" step="1">
+										</div>
+										</div>
+										</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Bottom Toolbar-->
+				<div class="toolbar tabbar">
+					<div class="toolbar-inner">
+						<a href="#rgb" class="tab-link active">RGB</a>
+						<a href="#hsb" class="tab-link">HSB</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Path to Framework7 Library JS-->
+	<script type="text/javascript" src="framework7/js/framework7.min.js"></script>
+	<script type="text/javascript" src="wled.js"></script>
+</body>
+</html>

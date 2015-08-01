@@ -1,3 +1,25 @@
+var myApp = new Framework7();
+var $$ = Dom7; // Export selectors engine
+
+// Framework7 setup
+// ================
+
+// Add view
+var mainView = myApp.addView('.view-main', {
+    // Because we use fixed-through navbar we can enable dynamic navbar
+    dynamicNavbar: true
+});
+
+// Callbacks to run specific code for specific pages
+myApp.onPageInit('hsb', function (page) {
+    $$('.create-page').on('click', function () {
+        alert("blub")
+    });
+});
+
+// WLED api calls
+// ==============
+
 var r = document.getElementById('r');
 var g = document.getElementById('g');
 var b = document.getElementById('b');
@@ -31,7 +53,8 @@ function post(postData) {
 	}
 
 	console.debug(postData)
-	request.open("POST", document.URL, async);
+	// request.open("POST", document.URL, async);
+	request.open("POST", "http://wled/cgi-bin/wled.cgi", async);
 	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 	request.send(postData);
 }

@@ -28,4 +28,5 @@
 *.app
 
 # Manually configured
+WLED/WLED.xcodeproj/project.xcworkspace/xcuserdata
 build/
