@@ -2,6 +2,8 @@
 // WLED api calls
 // ==============
 
+const baseUrl = "http://wled";
+const cgiUrl = baseUrl + "/cgi-bin/wled.cgi";
 var r = document.getElementById('r');
 var g = document.getElementById('g');
 var b = document.getElementById('b');
