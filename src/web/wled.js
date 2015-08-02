@@ -1,83 +1,129 @@
 
 // WLED api calls
 // ==============
+const API = {
+	"cgiUrl": "http://wled/cgi-bin/wled.cgi",
 
-const baseUrl = "http://wled";
-const cgiUrl = baseUrl + "/cgi-bin/wled.cgi";
-var r = document.getElementById('r');
-var g = document.getElementById('g');
-var b = document.getElementById('b');
-var enabled = document.getElementById('enabled');
+	// Converts a hex string (AABBCC) to separate RGB integers.
+	"hexToRgb": function(hex) {
+	    var bigint = parseInt(hex, 16);
+	    var r = (bigint >> 16) & 255;
+	    var g = (bigint >> 8) & 255;
+	    var b = bigint & 255;
+	    return { "r": r, "g": g, "b": b };
+	},
 
-function composeColorQuery() {
-	var convert = function(val) {
-		var result = val.toString(16);
-		console.debug(result);
-		return result.length == 1 ? "0" + result : result;
-	}
-	return "color=" + convert(parseInt(r.value))
-					+ convert(parseInt(g.value))
-					+ convert(parseInt(b.value));
-}
+	"rgbToHex": function(rgb) {
+		var convert = function(val) {
+			var result = val.toString(16);
+			return result.length == 1 ? "0" + result : result;
+		}
+		return convert(parseInt(rgb["r"]))
+				+ convert(parseInt(rgb["g"]))
+				+ convert(parseInt(rgb["b"]));
+	},
 
-// Converts a hex string (AABBCC) to separate RGB integers.
-function hexToRgb(hex) {
-	console.debug(hex);
-    var bigint = parseInt(hex, 16);
-    var r = (bigint >> 16) & 255;
-    var g = (bigint >> 8) & 255;
-    var b = bigint & 255;
-	console.debug({ "r": r, "g": g, "b": b })
+	"rgbToHsb": function(rgb) {
+		const MIN = Math.min(rgb["r"], rgb["g"], rgb["b"]);
+		const MAX = Math.max(rgb["r"], rgb["g"], rgb["b"]);
 
-    return { "r": r, "g": g, "b": b };
-}
+		var hue = 0;
+		if (MIN == MAX) hue = 0;
+		else if (MAX == rgb["r"]) hue = 60.0 *      (rgb["g"] - rgb["b"]) / (MAX - MIN);
+		else if (MAX == rgb["g"]) hue = 60.0 * (2 + (rgb["b"] - rgb["r"]) / (MAX - MIN));
+		else if (MAX == rgb["b"]) hue = 60.0 * (4 + (rgb["r"] - rgb["g"]) / (MAX - MIN));
 
-function composeEnabledQuery() {
-	return "enabled=1"; // The value actually doesn't matter at all.
-}
+		var saturation = 0;
+		if (MAX != 0) saturation = (MAX - MIN) / MAX;
+		return { "h": hue, "s": saturation, "b": MAX }
+	},
 
-function fetchCurrentColor(callback) {
-	var async = true;
-	var request = new XMLHttpRequest();
-	request.onload = function() {
-		if (request.status != 200) {
-			alert("Unexpected status code: "  + request.status);
+	"hsbToRgb": function(hsb) {
+		if (hsb["s"] = 0) {
+			// Neutral grey
+			return { "r": hsb["b"], "g": hsb["b"], "b": hsb["b"] }
 		}
 
-		var response = JSON.parse(request.responseText)
-		callback(hexToRgb(response.color));
-	}
-	request.open("GET", cgiUrl + "/color", async);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send()
-}
+		const hi = Math.floor(hue.value / 60.0);
+		const f = hue.value / 60.0 - hi;
+		const p = brightness.value * (1 - saturation.value);
+		const q = brightness.value * (1 - saturation.value * f);
+		const t = brightness.value * (1 - saturation.value * (1 - f));
 
-function post(postData) {
-	var async = true;
-	var request = new XMLHttpRequest();
-
-	request.onload = function() {
-		var status = request.status; // HTTP status code
-		var data = JSON.parse(request.responseText); // HTTP body
-		if (data.result != "ok") {
-			console.debug(data)
+		var rgb = null;
+		switch(hi) {
+		case 0:
+		case 6:
+			rgb = { "r": hsb["b"], "g": t, "b": p }; break;
+		case 1:
+			rgb = { "r": q, "g": hsb["b"], "b": p }; break;
+		case 2:
+			rgb = { "r": p, "g": hsb["b"], "b": t }; break;
+		case 3:
+			rgb = { "r": p, "g": q, "b": hsb["b"] }; break;
+		case 4:
+			rgb = { "r": t, "g": p, "b": hsb["b"] }; break;
+		case 5:
+			rgb = { "r": hsb["b"], "g": p, "b": q }; break;
+		default:
+			console.log("Unexpected case in hsbToRgb: hi = " + hi);
 		}
-	}
 
-	// request.open("POST", document.URL, async);
-	request.open("POST", cgiUrl, async);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send(postData);
+		// Scale [0, 1] to [0, 255]
+		rgb["r"] *= 255;
+		rgb["g"] *= 255;
+		rgb["b"] *= 255;
+		return rgb;
+	},
+
+	"setColor": function(color) {
+		API.post("color=" + API.rgbToHex(color));
+	},
+
+	"getColor": function(callback) {
+		var async = true;
+		var request = new XMLHttpRequest();
+		request.onload = function() {
+			if (request.status != 200) {
+				alert("Unexpected status code: "  + request.status);
+			}
+
+			var response = JSON.parse(request.responseText)
+			callback(API.hexToRgb(response.color));
+		}
+		request.open("GET", API.cgiUrl + "/color", async);
+		request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+		request.send()
+	},
+
+	"setEnabled": function(enabled) {
+		const enabledInt = parseInt(enabled)
+		if (enabledInt < 0 || enabledInt > 1) {
+			console.log("Unexpected enabled value: " + enabledInt);
+		}
+		API.post("enabled=" + enabledInt);
+	},
+
+	"post": function(postData) {
+		var async = true;
+		var request = new XMLHttpRequest();
+
+		request.onload = function() {
+			var status = request.status; // HTTP status code
+			var data = JSON.parse(request.responseText); // HTTP body
+			if (data.result != "ok") {
+				console.debug("Error: " + data)
+			}
+		}
+
+		request.open("POST", API.cgiUrl, async);
+		request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+		request.send(postData);
+	},
 }
-
-r.onchange = function() { post(composeColorQuery()) };
-g.onchange = function() { post(composeColorQuery()) };
-b.onchange = function() { post(composeColorQuery()) };
-enabled.onclick = function() { post(composeEnabledQuery()) };
 
 // Framework7 setup
 // ================
-
 var myApp = new Framework7({
 	// Disable automatic init, prevents onPageInit for index page as the page
 	// is already initialized when the callback is registered.
@@ -94,12 +140,52 @@ var mainView = myApp.addView('.view-main', {
 // Callbacks to run specific code for specific pages
 // TODO select proper events
 myApp.onPageInit("index", function(page) {
-	fetchCurrentColor(function(color) {
-		r.value = color["r"];
-		g.value = color["g"];
-		b.value = color["b"];
+	API.getColor(function(rgb) {
+		r.value = rgb["r"];
+		g.value = rgb["g"];
+		b.value = rgb["b"];
+
+		const hsb = API.rgbToHsb(rgb);
+		hue.value = hsb["h"];
+		saturation.value = hsb["s"];
+		brightness.value = hsb["b"];
 	});
 });
 
 // Don't forget this! Auto init was disabled in the Framework7 ctor.
 myApp.init();
+
+var red     = document.getElementById("r");
+var green   = document.getElementById("g");
+var blue    = document.getElementById("b");
+var enabled = document.getElementById("enabled");
+
+function getRgb() {
+	return {
+		"r": red.value,
+		"g": green.value,
+		"b": blue.value
+	};
+}
+
+r.onchange = function() { API.setColor(getRgb()); };
+g.onchange = function() { API.setColor(getRgb()); };
+b.onchange = function() { API.setColor(getRgb()); };
+enabled.onclick = function() { API.setEnabled(1); };
+
+var hue        = document.getElementById("hue");
+var saturation = document.getElementById("saturation");
+var brightness = document.getElementById("brightness");
+
+function getHsb() {
+	return {
+		"h": hue.value,
+		"s": saturation.value,
+		"b": brightness.value
+	};
+}
+
+hue.onchange = function() { API.setColor(API.hsbToRgb(getHsb())); };
+saturation.onchange = function() { API.setColor(API.hsbToRgb(getHsb())); };
+brightness.onchange = function() { API.setColor(API.hsbToRgb(getHsb())); };
+// enabled.onclick = function() { API.setEnabled(1); };
