@@ -59,7 +59,7 @@ std::string vecToHex(Color color)
 	hexInt += color[2];
 	std::stringstream ss;
 	ss << std::hex;
-	ss << std::setw(6) << hexInt;
+	ss << std::setw(6) << std::setfill('0') << hexInt;
 	return ss.str();
 }
 
