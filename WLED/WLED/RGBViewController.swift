@@ -47,9 +47,9 @@ class RGBViewController: UIViewController {
 					floats.append(CGFloat())
 				}
 				color?.getRed(&floats[0], green: &floats[1], blue: &floats[2], alpha: &floats[3])
-				self.red.value   = Float(floats[0]) * 255.0
-				self.green.value = Float(floats[1]) * 255.0
-				self.blue.value  = Float(floats[2]) * 255.0
+				self.red.value   = Float(floats[0])
+				self.green.value = Float(floats[1])
+				self.blue.value  = Float(floats[2])
 				self.updateBackgroundColor(color)
 			}
 		}
