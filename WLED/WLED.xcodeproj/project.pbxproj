@@ -15,6 +15,7 @@
 		1F55ACCC1B612E5D003058C7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F55ACCA1B612E5D003058C7 /* LaunchScreen.storyboard */; };
 		1F55ACD41B615726003058C7 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F55ACD31B615726003058C7 /* SettingsViewController.swift */; };
 		1F55ACD61B615B4B003058C7 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F55ACD51B615B4B003058C7 /* API.swift */; };
+		1FEF93F71B809EDA00EF1697 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEF93F61B809EDA00EF1697 /* Util.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		1F55ACCD1B612E5D003058C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F55ACD31B615726003058C7 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		1F55ACD51B615B4B003058C7 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		1FEF93F61B809EDA00EF1697 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				1F55ACC31B612E5D003058C7 /* HSVViewController.swift */,
 				1F55ACC11B612E5D003058C7 /* RGBViewController.swift */,
 				1F55ACD31B615726003058C7 /* SettingsViewController.swift */,
+				1FEF93F61B809EDA00EF1697 /* Util.swift */,
 				1F55ACC51B612E5D003058C7 /* Main.storyboard */,
 				1F55ACC81B612E5D003058C7 /* Assets.xcassets */,
 				1F55ACCA1B612E5D003058C7 /* LaunchScreen.storyboard */,
@@ -144,6 +147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F55ACC41B612E5D003058C7 /* HSVViewController.swift in Sources */,
+				1FEF93F71B809EDA00EF1697 /* Util.swift in Sources */,
 				1F55ACC01B612E5D003058C7 /* AppDelegate.swift in Sources */,
 				1F55ACC21B612E5D003058C7 /* RGBViewController.swift in Sources */,
 				1F55ACD41B615726003058C7 /* SettingsViewController.swift in Sources */,

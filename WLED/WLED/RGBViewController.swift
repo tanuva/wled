@@ -28,10 +28,16 @@ class RGBViewController: UIViewController {
 			if let e = error {
 				switch e.code {
 				case .NETWORK_ERROR:
-					print("Network error: \(e.description)")
+					print("Network error: \(e.description!)")
+					dispatch_sync(dispatch_get_main_queue()) { () -> Void in
+						Util.showAlert("Network Error", message: e.description! + "\n(\(self.api.cgiUrl))", parent: self)
+					}
 					break
 				case .JSON_ERROR:
-					print("JSON error: \(e.description)")
+					print("JSON error: \(e.description!)")
+					dispatch_sync(dispatch_get_main_queue()) { () -> Void in
+						Util.showAlert("Protocol Error", message: e.description! + "\n(\(self.api.cgiUrl))", parent: self)
+					}
 					break
 				}
 			} else {
@@ -71,7 +77,10 @@ class RGBViewController: UIViewController {
 			if let e = error {
 				switch e.code {
 				case .NETWORK_ERROR:
-					print("Network error: \(e.description)")
+					print("Network error: \(e.description!)")
+					dispatch_sync(dispatch_get_main_queue()) { () -> Void in
+						Util.showAlert("Network Error", message: e.description! + "\n(\(self.api.cgiUrl))", parent: self)
+					}
 					break
 				default:
 					break
