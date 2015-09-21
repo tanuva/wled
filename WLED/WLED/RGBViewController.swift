@@ -10,9 +10,9 @@ import UIKit
 
 class RGBViewController: UIViewController {
 	let api: API
-	@IBOutlet weak var red: UISlider!
-	@IBOutlet weak var green: UISlider!
-	@IBOutlet weak var blue: UISlider!
+	@IBOutlet weak var red: GradientSlider!
+	@IBOutlet weak var green: GradientSlider!
+	@IBOutlet weak var blue: GradientSlider!
 
 	required init?(coder aDecoder: NSCoder) {
 		self.api = API(cgiUrl: Settings.instance().cgiUrl)
@@ -26,30 +26,17 @@ class RGBViewController: UIViewController {
 	override func viewWillAppear(animated: Bool) {
 		self.api.getColor { (error: APIError?, color: UIColor?) -> Void in
 			if let e = error {
-				switch e.code {
-				case .NETWORK_ERROR:
-					print("Network error: \(e.description!)")
-					dispatch_sync(dispatch_get_main_queue()) { () -> Void in
-						Util.showAlert("Network Error", message: e.description! + "\n(\(self.api.cgiUrl))", parent: self)
-					}
-					break
-				case .JSON_ERROR:
-					print("JSON error: \(e.description!)")
-					dispatch_sync(dispatch_get_main_queue()) { () -> Void in
-						Util.showAlert("Protocol Error", message: e.description! + "\n(\(self.api.cgiUrl))", parent: self)
-					}
-					break
-				}
+				Util.handleError(e, api: self.api, parent: self)
 			} else {
 				// No error, color must be valid
-				var floats = Array<CGFloat>()
-				for _ in 0..<4 {
-					floats.append(CGFloat())
-				}
-				color?.getRed(&floats[0], green: &floats[1], blue: &floats[2], alpha: &floats[3])
-				self.red.value   = Float(floats[0])
-				self.green.value = Float(floats[1])
-				self.blue.value  = Float(floats[2])
+				var cgRed   = CGFloat()
+				var cgGreen = CGFloat()
+				var cgBlue  = CGFloat()
+				var cgAlpha = CGFloat()
+				color?.getRed(&cgRed, green: &cgGreen, blue: &cgBlue, alpha: &cgAlpha)
+				self.red.value   = Float(cgRed)
+				self.green.value = Float(cgGreen)
+				self.blue.value  = Float(cgBlue)
 				self.updateBackgroundColor(color)
 			}
 		}
@@ -61,15 +48,15 @@ class RGBViewController: UIViewController {
 	}
 
 	func updateBackgroundColor(color: UIColor?) {
+		print("Setting bg color")
 		if let c = color {
 			self.view.backgroundColor = c;
 		} else {
-		self.view.backgroundColor = UIColor(colorLiteralRed: self.red.value,
-			green: self.green.value,
-			blue: self.blue.value,
-			alpha: 1.0)
+			self.view.backgroundColor = UIColor(red: CGFloat(self.red.value),
+				green: CGFloat(self.green.value),
+				blue: CGFloat(self.blue.value),
+				alpha: CGFloat(1.0))
 		}
-		print("\(self.view.backgroundColor)")
 	}
 
 	@IBAction func onEnabledClicked(sender: AnyObject) {
@@ -90,8 +77,16 @@ class RGBViewController: UIViewController {
 	}
 
 	@IBAction func onSliderValueChanged(sender: AnyObject) {
-		self.updateBackgroundColor(nil)
-		// TODO send color change command
+		let color = UIColor(red: CGFloat(self.red.value),
+			green: CGFloat(self.green.value),
+			blue: CGFloat(self.blue.value),
+			alpha: CGFloat(1.0))
+		self.updateBackgroundColor(color)
+		self.api.setColor(color) { (error: APIError?) -> Void in
+			if let e = error {
+				Util.handleError(e, api: self.api, parent: self)
+			}
+		}
 	}
 }
 

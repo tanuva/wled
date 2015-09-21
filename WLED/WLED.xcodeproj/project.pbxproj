@@ -16,6 +16,7 @@
 		1F55ACD41B615726003058C7 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F55ACD31B615726003058C7 /* SettingsViewController.swift */; };
 		1F55ACD61B615B4B003058C7 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F55ACD51B615B4B003058C7 /* API.swift */; };
 		1FEF93F71B809EDA00EF1697 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEF93F61B809EDA00EF1697 /* Util.swift */; };
+		1FEF93F91B80E11900EF1697 /* GradientSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEF93F81B80E11900EF1697 /* GradientSlider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		1F55ACD31B615726003058C7 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		1F55ACD51B615B4B003058C7 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		1FEF93F61B809EDA00EF1697 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		1FEF93F81B80E11900EF1697 /* GradientSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradientSlider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 			children = (
 				1F55ACD51B615B4B003058C7 /* API.swift */,
 				1F55ACBF1B612E5D003058C7 /* AppDelegate.swift */,
+				1FEF93F81B80E11900EF1697 /* GradientSlider.swift */,
 				1F55ACC31B612E5D003058C7 /* HSVViewController.swift */,
 				1F55ACC11B612E5D003058C7 /* RGBViewController.swift */,
 				1F55ACD31B615726003058C7 /* SettingsViewController.swift */,
@@ -107,6 +110,7 @@
 				TargetAttributes = {
 					1F55ACBB1B612E5D003058C7 = {
 						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = UM6B3U65FX;
 					};
 				};
 			};
@@ -152,6 +156,7 @@
 				1F55ACC21B612E5D003058C7 /* RGBViewController.swift in Sources */,
 				1F55ACD41B615726003058C7 /* SettingsViewController.swift in Sources */,
 				1F55ACD61B615B4B003058C7 /* API.swift in Sources */,
+				1FEF93F91B80E11900EF1697 /* GradientSlider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,10 +267,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = WLED/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.nightsoul.WLED;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -273,10 +281,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = WLED/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.nightsoul.WLED;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

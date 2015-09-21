@@ -69,11 +69,13 @@ class API: NSObject {
 	}
 
 	func setColor(color: UIColor, handler: (APIError?) -> Void) {
-		sendPost(API.hexStringWithColor(color), handler: handler)
+		print("sending " + API.hexStringWithColor(color))
+		sendPost("color=" + API.hexStringWithColor(color), handler: handler)
 	}
 
 	func sendPost(data: String, handler: (APIError?) -> Void) {
-		let request = NSMutableURLRequest(URL: NSURL(string: self.cgiUrl)!) // This should rather be self.cgiUrl + "/color"
+		let request = NSMutableURLRequest(URL: NSURL(string: self.cgiUrl)!)
+		request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
 		request.HTTPMethod = "POST"
 		request.HTTPBody = data.dataUsingEncoding(NSUTF8StringEncoding)
 		print("<< \(request.URL!) Body: \(data)")
@@ -100,22 +102,25 @@ class API: NSObject {
 		var tmpHex = hex.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()).uppercaseString
 
 		if tmpHex.hasPrefix("#") {
-			tmpHex = tmpHex.substringFromIndex(advance(tmpHex.startIndex, 1))
+			tmpHex = tmpHex.substringFromIndex(tmpHex.startIndex.advancedBy(1))
 		}
 
 		if (tmpHex.characters.count != 6) {
 			return UIColor.grayColor()
 		}
 
-		let rString = tmpHex.substringToIndex(advance(tmpHex.startIndex, 2))
-		let gString = tmpHex.substringFromIndex(advance(tmpHex.startIndex, 2)).substringToIndex(advance(tmpHex.startIndex, 2))
-		let bString = tmpHex.substringFromIndex(advance(tmpHex.startIndex, 4))
+		let rString = tmpHex.substringToIndex(tmpHex.startIndex.advancedBy(2))
+		let gString = tmpHex.substringFromIndex(tmpHex.startIndex.advancedBy(2)).substringToIndex(tmpHex.startIndex.advancedBy(2))
+		let bString = tmpHex.substringFromIndex(tmpHex.startIndex.advancedBy(4))
 
 		var r:CUnsignedInt = 0, g:CUnsignedInt = 0, b:CUnsignedInt = 0;
 		NSScanner(string: rString).scanHexInt(&r)
 		NSScanner(string: gString).scanHexInt(&g)
 		NSScanner(string: bString).scanHexInt(&b)
-		return UIColor(colorLiteralRed: Float(r) / 255.0, green: Float(g) / 255.0, blue: Float(b) / 255.0, alpha: Float(1))
+		return UIColor(red: CGFloat(Float(r) / 255.0),
+			green: CGFloat(Float(g) / 255.0),
+			blue:  CGFloat(Float(b) / 255.0),
+			alpha: CGFloat(1))
 	}
 
 	// Creates a hex string from a UIColor. (Adapted from http://stackoverflow.com/a/14428870)
@@ -124,8 +129,7 @@ class API: NSObject {
 
 		// This method only works for RGBA colors
 		if (CGColorGetNumberOfComponents(color.CGColor) == 4) {
-			var components = CGColorGetComponents(color.CGColor);
-
+			let components = CGColorGetComponents(color.CGColor)
 			let r = roundf(Float(components[0] * 255.0))
 			let g = roundf(Float(components[1] * 255.0))
 			let b = roundf(Float(components[2] * 255.0))
